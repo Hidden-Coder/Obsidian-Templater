@@ -2,6 +2,9 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
+/**
+ * Config struct
+ */
 #[derive(Debug,Serialize, Deserialize)]
 pub struct MyConfig {
     pub template_path: Option<PathBuf>,
