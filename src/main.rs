@@ -77,6 +77,10 @@ fn main() {
     }
 }
 
+/**
+ * Set the directory, that is used for creating new vault in.
+ * This will be stored in the config file.
+ */
 fn set_vault_dir(mut config: MyConfig, new_path: PathBuf) {
     config.vault_dir = Some(new_path);
     if let Err(e) = confy::store(APP_NAME,None, config) {
@@ -86,6 +90,10 @@ fn set_vault_dir(mut config: MyConfig, new_path: PathBuf) {
     }
 }
 
+/**
+ * Set the template directory, that is used for getting the vault template from.
+ * This will be stored in the config file.
+ */
 fn set_template_path(mut config: MyConfig, new_path: PathBuf) {
     config.template_path = Some(new_path);
     if let Err(e) = confy::store(APP_NAME,None, config) {
@@ -95,6 +103,10 @@ fn set_template_path(mut config: MyConfig, new_path: PathBuf) {
     }
 }
 
+/**
+ * Set the obsidian installation path.
+ * This will be stored in the config file.
+ */
 fn set_obsidian_path(mut config: MyConfig, new_path: PathBuf) {
     config.obsidian_config = Some(new_path);
     if let Err(e) = confy::store(APP_NAME, None, config) {
@@ -104,6 +116,11 @@ fn set_obsidian_path(mut config: MyConfig, new_path: PathBuf) {
     }
 }
 
+/**
+ * Create a new vault with the given name.
+ * This will copy the template vault to the new vault directory.
+ * Then opens obisian with the newly created vault.
+ */
 fn create_template(name: &str, cfg: MyConfig) -> io::Result<()> {
     let vault_path = if let Some(path) = &cfg.vault_dir {
         path
@@ -152,24 +169,5 @@ fn create_template(name: &str, cfg: MyConfig) -> io::Result<()> {
         .spawn()
         .expect("Could not start obsidian");
 
-    /*
-    let obs_path = String::from("obsidian://open?path=");
-    let path_to_new_vault = vault_path.join(name);
-    let path_to_new_vault = path_to_new_vault.to_str().unwrap();
-    let full_path = obs_path + path_to_new_vault;
-    open::with("", "obsidian")?;
-    */
-
-
-    //std::process::Command::new("obsidian").spawn().unwrap();
-
-    /*
-    std::thread::spawn(move || {
-        std::process::Command::new("cmd")
-            .args(["/C", "start", "obsidian://open"])
-            .spawn()
-            .expect("Could not start");
-    } );
-    */
     return Ok(());
 }

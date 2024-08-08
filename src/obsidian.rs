@@ -8,16 +8,31 @@ const OBSIDIAN_CONFIG_FILE: &str = "obsidian.json";
 
 #[derive(Debug,Serialize, Deserialize)]
 pub struct Vault {
+    /**
+     * Absolute path to the vault directory
+     */
     pub path: String,
+    /**
+     * Timestamp of the creation of the vault
+     */
     pub ts: u128,
 }
 
 #[derive(Debug,Serialize, Deserialize)]
 pub struct ObsidianConfig {
+    /**
+     * Map of vault id to vault
+     */
     pub vaults: HashMap<String, Vault>,
+    /**
+     * Frame settings of the obsidian window
+     */
     pub frame: String,
 }
 
+/**
+ * Get the obsidian config from the obsidian.json file
+ */
 fn get_obsidian_config(config: &MyConfig) -> io::Result<ObsidianConfig> {
     let obsidian_path = config.obsidian_config.as_ref().expect("Obsidian config path needs to be set");
     let path_to_obsidian_config = obsidian_path.join(OBSIDIAN_CONFIG_FILE);
@@ -27,6 +42,9 @@ fn get_obsidian_config(config: &MyConfig) -> io::Result<ObsidianConfig> {
     return Ok(obsidian_config);
 }
 
+/**
+ * Write the new obsidian config to the obsidian.json file
+ */
 fn write_obsidian_config(config: &MyConfig, obs_config: ObsidianConfig) -> io::Result<()> {
     let obsidian_path = config.obsidian_config.as_ref().expect("Obsidian config path needs to be set");
     let path_to_obsidian_config = obsidian_path.join(OBSIDIAN_CONFIG_FILE);
@@ -36,6 +54,10 @@ fn write_obsidian_config(config: &MyConfig, obs_config: ObsidianConfig) -> io::R
     return Ok(());
 }
 
+/**
+ * Generate a new vault id.
+ * This is used to identify the vault in the obsidian.json file.
+ */
 fn generate_vault_id() -> String {
     let id = uuid::Uuid::new_v4().as_simple().to_string();
     let mut ret = String::new();
@@ -43,6 +65,10 @@ fn generate_vault_id() -> String {
     return ret;
 }
 
+/**
+ * Create a new vault with the given path.
+ * This will add the new vault to the obsidian.json file.
+ */
 pub fn create_new_vault(config: &MyConfig, path: &PathBuf) -> io::Result<()> {
     // Write into obsidian.json
     let mut obs_config = get_obsidian_config(config)?;
@@ -65,6 +91,9 @@ pub fn create_new_vault(config: &MyConfig, path: &PathBuf) -> io::Result<()> {
     return Ok(());
 }
 
+/**
+ * Vault config struct
+ */
 #[allow(non_snake_case)]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct VaultConfig {
