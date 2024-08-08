@@ -1,6 +1,8 @@
 # WARNING
 The current version of this cli is not yet stable and bugs are to be expected.
 Also this cli is currently only tested on Windows.
+# Prequisites
+- [Obsidian](https://obsidian.md/) installed
 # Obsidian Vault Templater
 This is a small cli for creating [Obsidian](https://obsidian.md/) vaults from a template [Obsidian](https://obsidian.md/) vault.
 # Use Case
