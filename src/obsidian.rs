@@ -39,7 +39,7 @@ fn get_obsidian_config(config: &MyConfig) -> io::Result<ObsidianConfig> {
     let mut config_string = String::new();
     fs::File::open(path_to_obsidian_config)?.read_to_string(&mut config_string)?;
     let obsidian_config: ObsidianConfig = serde_json::from_str(&config_string)?;
-    return Ok(obsidian_config);
+    Ok(obsidian_config)
 }
 
 /**
@@ -51,7 +51,7 @@ fn write_obsidian_config(config: &MyConfig, obs_config: ObsidianConfig) -> io::R
     let new_obsidian_config =  serde_json::to_string_pretty(&obs_config)?;
     fs::write(path_to_obsidian_config, new_obsidian_config)?;
 
-    return Ok(());
+    Ok(())
 }
 
 /**
@@ -62,7 +62,7 @@ fn generate_vault_id() -> String {
     let id = uuid::Uuid::new_v4().as_simple().to_string();
     let mut ret = String::new();
     let _ = &id[..16].clone_into(&mut ret);
-    return ret;
+    ret
 }
 
 /**
@@ -88,7 +88,7 @@ pub fn create_new_vault(config: &MyConfig, path: &PathBuf) -> io::Result<()> {
     let buf = serde_json::to_string_pretty(&vault_config)?;
     file.write_all(buf.as_bytes())?;
 
-    return Ok(());
+    Ok(())
 }
 
 /**

@@ -13,10 +13,6 @@ const APP_NAME: &str = "ovt";
 #[derive(Parser)]
 #[command(author, version, about)]
 struct Cli {
-    /// The name of the new vault to create
-    #[arg(short='n', long="name")]
-    vault_name: Option<String>,
-
     #[command(subcommand)]
     command: Option<Commands>,
 }
@@ -36,6 +32,10 @@ enum Commands {
     /// Set the obisian installation path
     Obsidian {
         new_path: PathBuf
+    },
+    New {
+        /// The name of the new vault to create
+        vault_name: Option<String>,
     }
 }
 
@@ -49,8 +49,9 @@ fn main() {
 
     let args = Cli::parse();
 
-    if args.vault_name.is_none() && args.command.is_none() {
+    if args.command.is_none() {
         println!("You need to either specify the name of the vault to create or a subcommand. Try --help for more info");
+        exit(1);
     }
     match &args.command {
         Some(Commands::Vaults { new_path }) => {
@@ -64,15 +65,25 @@ fn main() {
         Some(Commands::Obsidian { new_path }) => {
             set_obsidian_path(config, new_path.clone());
             print!("Obsidian install path has been set: {:?}", new_path);
-
         }
-        None => {
-            let name = args.vault_name.expect("Vault name needs to be set");
-            if let Err(e) = create_template(name.as_str(), config) {
-                println!("An Error occured");
-                println!("{:?}", e);
+        Some(Commands::New { vault_name }) => {
+            // Extract the new vault name
+            let vaule_name = match vault_name.as_ref() {
+                Some(name) => name,
+                // If no vault name is given with the new subcommand, the user gave wrong input
+                None => {
+                    println!("You need to specify a vault name for the new vault");
+                    exit(1);
+                }
+            };
+            if let io::Result::Err(e) = create_template(vaule_name.as_str(), config) {
+                println!("Something went wrong {:?}", e);
                 exit(1);
             }
+            println!("A new vault has been created");
+        }
+        None => {
+            panic!("This code should never be reached");
         }
     }
 }
@@ -169,5 +180,5 @@ fn create_template(name: &str, cfg: MyConfig) -> io::Result<()> {
         .spawn()
         .expect("Could not start obsidian");
 
-    return Ok(());
+    Ok(())
 }
