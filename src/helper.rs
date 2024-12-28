@@ -15,5 +15,5 @@ pub fn copy_dir_rec(src: impl AsRef<Path>, dest: impl AsRef<Path>) -> io::Result
             fs::copy(entry.path(), dest.as_ref().join(entry.file_name()))?;
         }
     }
-    return Ok(());
+    Ok(())
 }

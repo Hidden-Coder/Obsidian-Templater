@@ -7,6 +7,8 @@ use crate::obsidian::create_new_vault;
 mod config;
 mod helper;
 mod obsidian;
+mod setup;
+mod errors;
 
 const APP_NAME: &str = "ovt";
 
@@ -55,15 +57,15 @@ fn main() {
     }
     match &args.command {
         Some(Commands::Vaults { new_path }) => {
-            set_vault_dir(config, new_path.clone());
+            setup::set_vault_dir(config, new_path.clone());
             println!("New vault dir has been set: {:?}", new_path);
         }
         Some(Commands::Template { new_path }) => {
-            set_template_path(config, new_path.clone());
+            setup::set_template_path(config, new_path.clone());
             println!("New template dir has been set: {:?}", new_path);
         }
         Some(Commands::Obsidian { new_path }) => {
-            set_obsidian_path(config, new_path.clone());
+            setup::set_obsidian_path(config, new_path.clone());
             print!("Obsidian install path has been set: {:?}", new_path);
         }
         Some(Commands::New { vault_name }) => {
@@ -88,44 +90,6 @@ fn main() {
     }
 }
 
-/**
- * Set the directory, that is used for creating new vault in.
- * This will be stored in the config file.
- */
-fn set_vault_dir(mut config: MyConfig, new_path: PathBuf) {
-    config.vault_dir = Some(new_path);
-    if let Err(e) = confy::store(APP_NAME,None, config) {
-        println!("Could not store into config");
-        println!("{:?}", e);
-        exit(1);
-    }
-}
-
-/**
- * Set the template directory, that is used for getting the vault template from.
- * This will be stored in the config file.
- */
-fn set_template_path(mut config: MyConfig, new_path: PathBuf) {
-    config.template_path = Some(new_path);
-    if let Err(e) = confy::store(APP_NAME,None, config) {
-        println!("Could not store into config");
-        println!("{:?}", e);
-        exit(1);
-    }
-}
-
-/**
- * Set the obsidian installation path.
- * This will be stored in the config file.
- */
-fn set_obsidian_path(mut config: MyConfig, new_path: PathBuf) {
-    config.obsidian_config = Some(new_path);
-    if let Err(e) = confy::store(APP_NAME, None, config) {
-        println!("Could not store into config");
-        println!("{:?}", e);
-        exit(1);
-    }
-}
 
 /**
  * Create a new vault with the given name.
