@@ -87,6 +87,9 @@ fn detect_obsidian_path() -> Option<String> {
     }
 }
 
+/**
+ * This is the flow for setting up the obsidian data path
+ */
 fn setup_obsidian_path(config: &mut MyConfig) -> Result<(), errors::Errors> {
     // Check if the obsisiand path can be detected
     if let Some(path) = detect_obsidian_path() {
@@ -111,6 +114,9 @@ fn setup_obsidian_path(config: &mut MyConfig) -> Result<(), errors::Errors> {
     }
 }
 
+/**
+ * This is the flow for setting up the template directory
+ */
 fn setup_template_dir(config: &mut MyConfig) -> Result<(), errors::Errors> {
     println!("Please provide the absolute path to the template directory");
     let mut buffer = String::new();
