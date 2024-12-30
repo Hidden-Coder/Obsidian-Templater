@@ -1,14 +1,14 @@
-use std::{path::PathBuf, process::exit, io};
 use clap::{Parser, Subcommand};
 use config::*;
+use std::{io, process::exit};
 
 use crate::obsidian::create_new_vault;
 
 mod config;
+mod errors;
 mod helper;
 mod obsidian;
 mod setup;
-mod errors;
 
 const APP_NAME: &str = "ovt";
 
@@ -22,23 +22,11 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Edit the path for creating a new vault
-    Vaults {
-        //#[arg(short, long)]
-        new_path: PathBuf
-    },
-    /// Edit the path for getting the template
-    Template {
-        //#[arg(short, long)]
-        new_path: PathBuf
-    },
-    /// Set the obisian installation path
-    Obsidian {
-        new_path: PathBuf
-    },
+    Setup,
     New {
         /// The name of the new vault to create
         vault_name: Option<String>,
-    }
+    },
 }
 
 fn main() {
@@ -55,22 +43,10 @@ fn main() {
         println!("You need to either specify the name of the vault to create or a subcommand. Try --help for more info");
         exit(1);
     }
-    match &args.command {
-        Some(Commands::Vaults { new_path }) => {
-            setup::set_vault_dir(config, new_path.clone());
-            println!("New vault dir has been set: {:?}", new_path);
-        }
-        Some(Commands::Template { new_path }) => {
-            setup::set_template_path(config, new_path.clone());
-            println!("New template dir has been set: {:?}", new_path);
-        }
-        Some(Commands::Obsidian { new_path }) => {
-            setup::set_obsidian_path(config, new_path.clone());
-            print!("Obsidian install path has been set: {:?}", new_path);
-        }
+    match args.command {
         Some(Commands::New { vault_name }) => {
             // Extract the new vault name
-            let vaule_name = match vault_name.as_ref() {
+            let vaule_name = match vault_name {
                 Some(name) => name,
                 // If no vault name is given with the new subcommand, the user gave wrong input
                 None => {
@@ -84,12 +60,20 @@ fn main() {
             }
             println!("A new vault has been created");
         }
+        Some(Commands::Setup) => match setup::setup() {
+            Err(e) => {
+                println!("Something went wrong {:?}", e);
+                exit(1);
+            }
+            Ok(_) => {
+                println!("Setup has been completed");
+            }
+        },
         None => {
             panic!("This code should never be reached");
         }
     }
 }
-
 
 /**
  * Create a new vault with the given name.

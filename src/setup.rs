@@ -1,48 +1,9 @@
-use std::io::BufRead;
+use std::io::{BufRead, Write};
 use std::{fs, io, path::PathBuf, process::exit};
 
 use crate::config;
 use crate::errors;
 use crate::{MyConfig, APP_NAME};
-
-/**
- * Set the directory, that is used for creating new vault in.
- * This will be stored in the config file.
- */
-pub fn set_vault_dir(mut config: config::MyConfig, new_path: PathBuf) {
-    config.vault_dir = Some(new_path);
-    if let Err(e) = confy::store(APP_NAME, None, config) {
-        println!("Could not store into config");
-        println!("{:?}", e);
-        exit(1);
-    }
-}
-
-/**
- * Set the template directory, that is used for getting the vault template from.
- * This will be stored in the config file.
- */
-pub fn set_template_path(mut config: config::MyConfig, new_path: PathBuf) {
-    config.template_path = Some(new_path);
-    if let Err(e) = confy::store(APP_NAME, None, config) {
-        println!("Could not store into config");
-        println!("{:?}", e);
-        exit(1);
-    }
-}
-
-/**
- * Set the obsidian installation path.
- * This will be stored in the config file.
- */
-pub fn set_obsidian_path(mut config: config::MyConfig, new_path: PathBuf) {
-    config.obsidian_config = Some(new_path);
-    if let Err(e) = confy::store(APP_NAME, None, config) {
-        println!("Could not store into config");
-        println!("{:?}", e);
-        exit(1);
-    }
-}
 
 /**
  * The flow for setup the vault dir
@@ -107,7 +68,7 @@ fn setup_obsidian_path(config: &mut MyConfig) -> Result<(), errors::Errors> {
                 config.obsidian_config = Some(PathBuf::from(buffer));
                 match confy::store(APP_NAME, None, config) {
                     Ok(_) => Ok(()),
-                    Err(e) => Err(errors::Errors::ConfigError(e))
+                    Err(e) => Err(errors::Errors::ConfigError(e)),
                 }
             }
         }
@@ -142,6 +103,20 @@ pub fn setup() -> Result<(), errors::Errors> {
         }
         Ok(c) => c,
     };
+    if config.vault_dir.is_some()
+        && config.template_path.is_some()
+        && config.obsidian_config.is_some()
+    {
+        println!("The setup has already been completed");
+        print!("Do you want to run the setup again? (y/n): ");
+        std::io::stdout().flush()?;
+        let mut buffer = String::new();
+        std::io::stdin().read_line(&mut buffer)?;
+        dbg!("Buffer: {}", &buffer);
+        if buffer.trim().to_lowercase() != "y" {
+            return Ok(());
+        }
+    }
     // Setup the obsidian data path
     setup_obsidian_path(&mut config)?;
     // Setting up the vault dir
